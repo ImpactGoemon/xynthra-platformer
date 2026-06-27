@@ -163,7 +163,8 @@ def test_game_headless_runs():
         frames = game.run(max_frames=5)
         assert frames == 5
         assert game.internal.get_size() == (S.WIDTH, S.HEIGHT)
-        assert game.window.get_size() == (S.WIDTH * S.WINDOW_SCALE, S.HEIGHT * S.WINDOW_SCALE)
+        assert game.window.get_size() == (S.WIDTH * game.scale, S.HEIGHT * game.scale)
+        assert game.scale >= 1
     finally:
         pygame.quit()
 

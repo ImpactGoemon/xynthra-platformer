@@ -38,13 +38,25 @@ def build_player_animations():
 
     sheet = body.copy()
     sheet.blit(hair, (0, 0))  # hair layer over body
+    # optional held-item layer (e.g. the flower); same 800x448 grid, faces left
+    hand_path = getattr(settings, "PLAYER_HAND_SHEET", None)
+    if hand_path:
+        try:
+            sheet.blit(_load(hand_path), (0, 0))
+        except Exception as exc:  # noqa: BLE001 - missing item sheet is non-fatal
+            print(f"[assets] hand sheet not loaded: {exc}")
 
     anims = {}
     for name, (row, frames, fps, loop) in PLAYER_ANIMATIONS.items():
+        scale = getattr(settings, "SPRITE_SCALE", 1)
         left = []
         for i in range(frames):
             rect = pygame.Rect(i * fw, row * fh, fw, fh)
-            left.append(sheet.subsurface(rect).copy())
+            cell = sheet.subsurface(rect).copy()
+            if scale != 1:
+                # transform.scale = fast nearest scaling (crisp pixels, no blur)
+                cell = pygame.transform.scale(cell, (fw * scale, fh * scale))
+            left.append(cell)
         right = [pygame.transform.flip(c, True, False) for c in left]
         # "left" is the source/default facing; "right" is the flipped copy.
         anims[name] = {

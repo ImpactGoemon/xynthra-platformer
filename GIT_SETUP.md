@@ -43,3 +43,22 @@ git log --oneline
   `.gitignore` first (the game still runs locally from your own copy).
 - `user.name`/`user.email` above are set per-repo; change them if you prefer a
   different commit identity.
+
+## Excluding the art assets (run on Windows)
+
+`Graphics/` is now in `.gitignore`, but it was already committed, so remove it
+from tracking and rewrite the single initial commit so the assets aren't left in
+history:
+
+```bash
+git rm -r --cached Graphics          # stop tracking (keeps your local files)
+git add .gitignore
+git commit --amend --no-edit         # rewrite the only commit without Graphics/
+git gc --prune=now                   # optional: purge the now-unreferenced blobs
+```
+
+Verify:
+```bash
+git ls-files Graphics                # should print NOTHING
+git status                           # Graphics/ no longer listed (ignored)
+```

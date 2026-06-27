@@ -1,0 +1,8 @@
+# Runtime dependency for Xynthra Platformer.
+# Tested with pygame 2.6.x (SDL 2.28). pygame-ce works too.
+pygame>=2.5
+# Dev-only (running the test suite):
+pytest>=7.0
+
+# Packaging the .exe (build-time only):
+pyinstaller>=6.0

@@ -65,7 +65,7 @@ def test_fall_lands_on_ground():
 
 def test_no_tunnel_high_speed():
     tm = _map(FLOOR_MAP)
-    box = AABB(2 * S.TILE, 96 - 52 - 4, S.PLAYER_W, S.PLAYER_H)  # just above floor
+    box = AABB(2 * S.TILE, 96 - S.PLAYER_H - 4, S.PLAYER_W, S.PLAYER_H)  # just above floor
     flags, vx, vy = move_and_collide(box, 0.0, 100000.0, DT, tm)
     assert flags["ground"] is True
     assert abs(box.bottom - 96) < 0.5  # stopped at floor, did not pass through
@@ -85,7 +85,8 @@ def test_wall_blocks_horizontal():
 
 
 def test_ceiling_blocks_jump():
-    rows = ["#####", ".....", ".....", "#####"]
+    # ceiling at ty=0 (0..32), floor far below so the tall box fits in the gap
+    rows = ["#####", ".....", ".....", ".....", ".....", "#####"]
     tm = _map(rows)
     box = AABB(2 * S.TILE, 40, S.PLAYER_W, S.PLAYER_H)
     flags, vx, vy = move_and_collide(box, 0.0, -100000.0, DT, tm)
@@ -223,8 +224,8 @@ def test_build_animations():
         a = anims[name]
         assert a["frames"] == frames
         assert len(a["left"]) == frames and len(a["right"]) == frames
-        assert a["left"][0].get_size() == (S.SPRITE_FRAME_W, S.SPRITE_FRAME_H)
-        assert a["right"][0].get_size() == (S.SPRITE_FRAME_W, S.SPRITE_FRAME_H)
+        assert a["left"][0].get_size() == (S.SPRITE_FRAME_W * S.SPRITE_SCALE, S.SPRITE_FRAME_H * S.SPRITE_SCALE)
+        assert a["right"][0].get_size() == (S.SPRITE_FRAME_W * S.SPRITE_SCALE, S.SPRITE_FRAME_H * S.SPRITE_SCALE)
 
 
 # ----------------------------------------------------------------- 14 animator

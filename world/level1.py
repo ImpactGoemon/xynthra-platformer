@@ -1,7 +1,7 @@
-"""A small test level for Milestone 2 (movement/collision sandbox).
+"""A small test level for movement/collision (Milestones 2-3).
 
-Returns a Tilemap and a spawn position (pixel coords of the player's top-left).
-'#'=solid, '.'=empty, 'P'=spawn marker (treated as empty).
+'#'=solid, '='=one-way platform (stand from above; jump up through; crouch+jump
+to drop through), '.'=empty, 'P'=spawn (treated as empty).
 """
 
 from world.tilemap import Tilemap
@@ -11,12 +11,12 @@ TEST_LEVEL = [
     "#............................#",
     "#............................#",
     "#......P.....................#",
-    "#...........####.............#",
+    "#....======..................#",
     "#............................#",
-    "#.................####.......#",
-    "#......####..................#",
+    "#............########........#",
+    "#......======................#",
     "#............................#",
-    "#..............#####.........#",
+    "#.................======......#",
     "#............................#",
     "#............................#",
     "##############################",
@@ -26,7 +26,6 @@ TEST_LEVEL = [
 def build_level():
     rows = [row.replace("P", ".") for row in TEST_LEVEL]
     tm = Tilemap(rows)
-    # spawn at the 'P' marker
     spawn = (1 * tm.tile, 1 * tm.tile)
     for ty, row in enumerate(TEST_LEVEL):
         tx = row.find("P")
