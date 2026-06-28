@@ -18,7 +18,7 @@ from core.input import InputManager
 from core.state import State, StateManager
 from core.timestep import FixedTimestep
 from ui.hud import (draw_charge_meter, draw_health, draw_belly,
-                    draw_heal_progress)
+                    draw_heal_progress, draw_struggle)
 from entities.projectile import Projectile
 from entities.pickup import Pickup
 
@@ -151,7 +151,7 @@ class PlayState(State):
             if e.dead or not _overlap(e.aabb, self.player.aabb):
                 continue
             if getattr(e, "swallows", False):
-                if self.player.enter_swallow(e):
+                if getattr(e, "stun_timer", 0.0) <= 0.0 and self.player.enter_swallow(e):
                     e.has_swallowed = True
             else:
                 self.player.take_damage(e.contact_damage, e.aabb.centerx)
@@ -212,6 +212,8 @@ class PlayState(State):
         draw_charge_meter(surface, self.player)
         if self.player.swallowed:
             self._draw_swallow_overlay(surface)
+        elif getattr(self.player, "digesting", False):
+            self._draw_digest_overlay(surface)
 
     def _draw_swallow_overlay(self, surface):
         cy = S.HEIGHT // 2
@@ -220,6 +222,18 @@ class PlayState(State):
         surface.blit(banner, (0, cy - S.SWALLOW_BANNER_H // 2))
         draw_text_center(surface, S.SWALLOW_MSG, S.SWALLOW_MSG_SIZE,
                          S.SWALLOW_MSG_COLOR, cy)
+        draw_struggle(surface, self.player)
+        draw_text_center(surface, S.HUD_STRUGGLE_HINT, S.HUD_STRUGGLE_HINT_SIZE,
+                         S.HUD_STRUGGLE_HINT_COLOR,
+                         S.HUD_STRUGGLE_Y + S.HUD_STRUGGLE_SIZE[1] + 20)
+
+    def _draw_digest_overlay(self, surface):
+        cy = S.HEIGHT // 2
+        banner = pygame.Surface((S.WIDTH, S.SWALLOW_BANNER_H), pygame.SRCALPHA)
+        banner.fill(S.DIGEST_BANNER_COLOR)
+        surface.blit(banner, (0, cy - S.SWALLOW_BANNER_H // 2))
+        draw_text_center(surface, S.DIGEST_MSG, S.DIGEST_MSG_SIZE,
+                         S.DIGEST_MSG_COLOR, cy)
 
 
 class GameOverState(State):

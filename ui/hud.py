@@ -70,3 +70,20 @@ def draw_heal_progress(surface, player):
     if fw > 0:
         pygame.draw.rect(surface, S.HUD_HEAL_FILL, (x, y, fw, h))
     pygame.draw.rect(surface, S.HUD_HEAL_BORDER, (x, y, w, h), 1)
+
+
+def draw_struggle(surface, player):
+    """Draw the centered struggle bar while the player is swallowed (no-op else).
+    The fill turns to the danger color when the bar is low."""
+    if not getattr(player, "swallowed", False):
+        return
+    w, h = S.HUD_STRUGGLE_SIZE
+    x = S.WIDTH // 2 - w // 2
+    y = S.HUD_STRUGGLE_Y
+    pygame.draw.rect(surface, S.HUD_STRUGGLE_BG, (x, y, w, h))
+    frac = player.struggle_fraction
+    color = S.HUD_STRUGGLE_LOW if frac <= S.HUD_STRUGGLE_LOW_FRAC else S.HUD_STRUGGLE_FILL
+    fw = int(round(w * frac))
+    if fw > 0:
+        pygame.draw.rect(surface, color, (x, y, fw, h))
+    pygame.draw.rect(surface, S.HUD_STRUGGLE_BORDER, (x, y, w, h), 2)

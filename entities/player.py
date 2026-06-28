@@ -38,8 +38,12 @@ class Player(Actor):
         self.belly = 0               # stored healing pickups (0..BELLY_MAX)
         self.heal_timer = 0.0        # progress holding Heal while idle
         self.healing = False         # currently digesting a pickup
-        self.swallowed = False       # inside an enemy (struggle minigame is M10)
+        self.swallowed = False       # inside an enemy (struggle minigame)
         self.swallowed_by = None     # the enemy that swallowed her
+        self.struggle = 0.0          # struggle bar 0..1 while swallowed
+        self.struggle_dmg_timer = 0.0
+        self.digesting = False       # being digested (placeholder) before game over
+        self.digest_timer = 0.0
 
     @property
     def stand_height(self):
@@ -61,7 +65,7 @@ class Player(Actor):
         """Apply a normal damaging hit: knockback away from ``source_x`` plus
         mercy i-frames. No-op (returns False) while already invincible or dead.
         On a fatal hit, starts the defeat animation."""
-        if self.iframes > 0.0 or self.dead:
+        if self.iframes > 0.0 or self.dead or self.swallowed or self.digesting:
             return False
         self.hp = max(0, self.hp - amount)
         direction = -1.0 if source_x >= self.aabb.centerx else 1.0
@@ -92,7 +96,7 @@ class Player(Actor):
         """Get swallowed by an enemy (Big contact). Milestone 9 just enters the
         held state and freezes movement; the struggle minigame is Milestone 10.
         No-op while already swallowed, in i-frames, or dead."""
-        if self.swallowed or self.dead or self.iframes > 0.0:
+        if self.swallowed or self.dead or self.iframes > 0.0 or self.digesting:
             return False
         self.swallowed = True
         self.swallowed_by = enemy
@@ -103,7 +107,68 @@ class Player(Actor):
         self.shoot_timer = 0.0
         self.healing = False
         self.heal_timer = 0.0
+        self.struggle = S.STRUGGLE_START
+        self.struggle_dmg_timer = 0.0
         return True
+
+    @property
+    def struggle_fraction(self):
+        return max(0.0, min(1.0, self.struggle))
+
+    def _update_struggle(self, dt, inp):
+        """Struggle minigame while swallowed: the bar drains continuously and a
+        Struggle press (Space) refills it. She takes STRUGGLE_DMG every
+        STRUGGLE_DMG_INTERVAL. Fill the bar to escape (stunning the enemy);
+        empty bar OR 0 HP digests her (defeat)."""
+        drain = S.STRUGGLE_DRAIN_TIME_BIG
+        if self.swallowed_by is not None:
+            drain = getattr(self.swallowed_by, "struggle_drain", drain)
+        self.struggle -= dt / drain
+        if inp.just_pressed("struggle"):
+            self.struggle = min(1.0, self.struggle + S.STRUGGLE_REFILL)
+
+        self.struggle_dmg_timer += dt
+        if self.struggle_dmg_timer >= S.STRUGGLE_DMG_INTERVAL:
+            self.struggle_dmg_timer -= S.STRUGGLE_DMG_INTERVAL
+            self.hp = max(0, self.hp - S.STRUGGLE_DMG)
+
+        if self.hp <= 0 or self.struggle <= 0.0:
+            self._digest()
+        elif self.struggle >= 1.0:
+            self._escape()
+
+    def _escape(self):
+        """Fill the bar: pop free, get brief i-frames, and stun the enemy."""
+        e = self.swallowed_by
+        self.swallowed = False
+        self.swallowed_by = None
+        self.struggle = 0.0
+        self.iframes = S.IFRAME_TIME       # mercy so she is not instantly re-grabbed
+        self.vy = S.KNOCKBACK_VY           # small pop out
+        self.on_ground = False
+        if e is not None:
+            e.has_swallowed = False
+            e.stun_timer = S.ENEMY_STUN_TIME
+
+    def _digest(self):
+        """Bar emptied or HP hit 0: start the digestion placeholder. The enemy
+        keeps holding her (idle) and a message shows; after DIGEST_HOLD this
+        flips to dead/death_done so the Play state hands off to Game Over."""
+        self.hp = 0
+        self.swallowed = False
+        self.struggle = 0.0
+        self.digesting = True
+        self.digest_timer = S.DIGEST_HOLD
+        # keep ``swallowed_by`` so the enemy stays idle (digesting) on screen
+
+    def _update_digesting(self, dt):
+        self.digest_timer = max(0.0, self.digest_timer - dt)
+        if self.animator:
+            self.animator.update(dt)
+        if self.digest_timer <= 0.0:
+            self.digesting = False
+            self.dead = True
+            self.death_done = True      # hand straight off to Game Over
 
     @property
     def heal_fraction(self):
@@ -133,9 +198,11 @@ class Player(Actor):
         if self.dead:
             self._tick_death(dt, tilemap)
             return
+        if self.digesting:
+            self._update_digesting(dt)
+            return
         if self.swallowed:
-            # Milestone 9 placeholder: held in place (no input, no physics).
-            # Milestone 10 replaces this with the struggle minigame.
+            self._update_struggle(dt, inp)
             if self.animator:
                 self.animator.update(dt)
             return
@@ -320,7 +387,7 @@ class Player(Actor):
         return img
 
     def draw(self, surface, offset=(0, 0)):
-        if self.swallowed:
+        if self.swallowed or self.digesting:
             return                              # inside an enemy: sprite hidden
         if not self.visible:
             return                              # blink "off" frame during i-frames

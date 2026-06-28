@@ -240,3 +240,39 @@ and a centered **"Xynthra is trying to escape!"** banner overlay is drawn. The
 real struggle/escape minigame is still Milestone 10. (`entities/enemy.py`,
 `entities/player.py` draw, `main.py` overlay, `settings.py` SWALLOW_* constants;
 tests in `tests/test_milestone9.py`.) 118/118 passing.
+
+## Milestone 10 — Swallow / struggle minigame ✅ (2026-06-27)
+
+The swallowed placeholder is now the real minigame. While swallowed by a Big:
+a **struggle bar** starts at 50% and **drains continuously** (full→empty in ~4 s
+for Big); each **Space** press refills it **+8%**. She takes **1 damage every
+2.5 s** inside. Outcomes: **fill the bar → escape** (pop free with brief i-frames,
+and the enemy is **stunned 3 s** so it can't immediately re-grab); **empty bar OR
+0 HP → digested** → the player **defeat** animation plays, then Game Over (retry
+from the menu). External hits can't damage her while swallowed.
+
+HUD: centered struggle bar (turns red when low) + "Mash SPACE to escape!" hint
+under the "Xynthra is trying to escape!" banner. Enemies idle while stunned
+(`Enemy.stun_timer`); the Play state won't swallow a stunned enemy.
+
+- **Run:** `python main.py` — walk into the Big to get swallowed, then mash
+  **Space** to fill the bar and escape (it gets stunned); stop mashing and the bar
+  empties and she's digested → Game Over.
+- **Test:** `python -m pytest tests/ -q` — 129/129 passing (M1–M10).
+- Files: `settings.py`, `entities/player.py` (struggle minigame), `entities/enemy.py`
+  (`stun_timer` + `struggle_drain`), `ui/hud.py` (`draw_struggle`), `main.py`
+  (stun-skip + overlay), `tests/test_milestone10.py` (new).
+
+_Next: Milestone 11 — Juggernaut (shield, grenades, short + whip grab → swallow)._
+
+### Polish (2026-06-27): digestion defeat sequence
+
+Losing the struggle minigame now plays a **digestion placeholder** before Game
+Over instead of the normal defeat animation: the player sprite stays hidden
+(inside the enemy), the enemy holds her idle, and a centered **"Xynthra was
+digested!"** banner shows for `DIGEST_HOLD` (~1.6 s); then it hands off to the
+Game Over screen. External hits and re-swallow are ignored during digestion.
+(`entities/player.py` `digesting`/`_update_digesting`, `main.py`
+`_draw_digest_overlay`, `settings.py` DIGEST_* constants; tests in
+`tests/test_milestone10.py`.) 130/130 passing.
+

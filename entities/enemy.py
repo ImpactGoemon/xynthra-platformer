@@ -23,6 +23,8 @@ class Enemy(Actor):
                          animations, hp, contact_damage)
         self.swallows = False          # True for enemies whose contact swallows (Big)
         self.has_swallowed = False     # True while it is holding a swallowed player
+        self.stun_timer = 0.0          # >0 = stunned (idle) after the player escapes
+        self.struggle_drain = S.STRUGGLE_DRAIN_TIME_BIG  # bar empty time when it holds her
 
     # -------------------------------------------------------------- damage/death
     def take_damage(self, amount):
@@ -67,9 +69,10 @@ class Enemy(Actor):
             if self.death_done:
                 self.alive = False
             return
+        self.stun_timer = max(0.0, self.stun_timer - dt)
         self._face(player)
-        if self.has_swallowed:
-            # holding a swallowed player: stand idle (no pursuit)
+        if self.has_swallowed or self.stun_timer > 0.0:
+            # holding a swallowed player, or stunned after she escaped: idle
             self.vx = approach(self.vx, 0.0, S.GROUND_FRICTION * dt)
         else:
             self._ai(dt, tilemap, player)

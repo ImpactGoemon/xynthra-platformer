@@ -205,3 +205,33 @@ SWALLOW_MSG_SIZE = 46
 SWALLOW_MSG_COLOR = (240, 210, 150)
 SWALLOW_BANNER_COLOR = (12, 10, 16, 150)   # RGBA, semi-transparent banner
 SWALLOW_BANNER_H = 64                       # banner height in internal px
+
+# --- Swallow / struggle minigame (Milestone 10) ---
+STRUGGLE_START = 0.50              # struggle bar starts half full
+STRUGGLE_REFILL = 0.08            # +8% per Struggle (Space) press
+STRUGGLE_DRAIN_TIME_BIG = 4.0     # seconds for a full bar to empty (Big)
+STRUGGLE_DRAIN_TIME_JUGG = 2.5    # Juggernaut drains faster (M11)
+STRUGGLE_DMG = 1                  # internal damage per tick while swallowed
+STRUGGLE_DMG_INTERVAL = 2.5       # seconds between internal damage ticks
+ENEMY_STUN_TIME = 3.0             # on escape, the enemy is stunned this long
+
+# HUD struggle bar (centered, drawn while swallowed)
+HUD_STRUGGLE_SIZE = (260, 18)
+HUD_STRUGGLE_Y = 300              # below the swallow message
+HUD_STRUGGLE_BG = (28, 22, 26)
+HUD_STRUGGLE_FILL = (120, 200, 235)
+HUD_STRUGGLE_LOW = (235, 120, 90)  # fill color when the bar is low (danger)
+HUD_STRUGGLE_LOW_FRAC = 0.30
+HUD_STRUGGLE_BORDER = (220, 220, 230)
+HUD_STRUGGLE_HINT = "Mash SPACE to escape!"
+HUD_STRUGGLE_HINT_SIZE = 26
+HUD_STRUGGLE_HINT_COLOR = (210, 210, 220)
+
+# --- Digestion sequence (Milestone 10 polish) ---
+# When the struggle minigame is lost, play a brief digestion placeholder (the
+# enemy "digesting" her + a message) before handing off to Game Over.
+DIGEST_HOLD = 1.6                  # seconds the digestion placeholder holds
+DIGEST_MSG = "Xynthra was digested!"
+DIGEST_MSG_SIZE = 50
+DIGEST_MSG_COLOR = (235, 150, 170)
+DIGEST_BANNER_COLOR = (16, 8, 12, 170)  # RGBA banner behind the message
