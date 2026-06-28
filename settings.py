@@ -105,3 +105,103 @@ HUD_CHARGE_SIZE = (200, 14)        # width, height in internal pixels
 HUD_CHARGE_BG = (24, 26, 34)
 HUD_CHARGE_BORDER = (200, 200, 210)
 HUD_CHARGE_TICK = (235, 235, 245)
+
+# --- Damage model (Milestone 6) ---
+PLAYER_MAX_HP = 10
+KNOCKBACK_VX = 200.0               # horizontal knockback speed, away from the source
+KNOCKBACK_VY = -250.0              # upward pop on a hit (negative = up)
+KNOCKBACK_CONTROL_LOCK = 0.20      # seconds input is ignored after a hit
+IFRAME_TIME = 1.5                  # mercy invincibility after taking a hit
+BLINK_INTERVAL = 0.12              # sprite blink toggle period during i-frames
+
+# HUD health pips
+HUD_HEALTH_POS = (16, 16)          # top-left of the health row
+HUD_HEALTH_PIP = (16, 16)          # pip width, height
+HUD_HEALTH_GAP = 4                 # gap between pips
+HUD_HEALTH_FULL = (228, 72, 72)
+HUD_HEALTH_EMPTY = (60, 40, 44)
+HUD_HEALTH_BORDER = (20, 16, 18)
+
+# --- Test hazard: enemy projectile (Milestone 6) ---
+ENEMY_PROJECTILE_SPEED = 360.0     # px/s, travels left toward the player
+ENEMY_PROJECTILE_DAMAGE = 1
+ENEMY_PROJECTILE_SIZE = 12
+ENEMY_PROJECTILE_COLOR = (255, 90, 90)
+ENEMY_FIRE_INTERVAL = 2.0          # seconds between test-hazard shots
+ENEMY_SPAWN_DIST = 520.0           # how far to the player's right a shot spawns
+
+# --- Death sequence (Milestone 6 tweak) ---
+# The defeat row is 10 frames @ 10 fps == ~1.0 s; hold the Play state on the
+# death animation this long before switching to the Game Over screen.
+DEFEAT_HOLD = 1.0
+
+# --- Healing / belly + pickups (Milestone 7) ---
+BELLY_MAX = 3                      # max stored healing objects (shrunken ladies)
+HEAL_HOLD = 4.0                    # seconds to hold Heal (idle) to digest one
+HEAL_AMOUNT = 3                    # HP restored per digested pickup
+HEAL_MOVE_EPS = RUN_ANIM_SPEED     # |vx| below this still counts as "idle"
+
+# Pickup sprite: Schoolgirl Girl_1 idle, scaled to a fraction of Xynthra's size
+PICKUP_SHEET = _os.path.join(BASE_DIR, "Graphics", "Schoolgirls", "Girl_1", "Idle.png")
+PICKUP_FRAME_W = 128               # idle sheet is 128x128 cells (9 frames)
+PICKUP_FRAME_H = 128
+PICKUP_SIZE_FRACTION = 0.25        # pickup drawn at 1/4 of Xynthra's visible height
+PICKUP_FALLBACK_SIZE = (10, 22)    # colored-rect size if the sheet can't load
+PICKUP_FALLBACK_COLOR = (235, 170, 200)
+
+# HUD belly indicator (stored-count slots) + heal progress bar
+HUD_BELLY_POS = (16, 40)           # below the health row
+HUD_BELLY_SLOT = (16, 16)
+HUD_BELLY_GAP = 4
+HUD_BELLY_FULL = (150, 110, 200)
+HUD_BELLY_EMPTY = (44, 38, 56)
+HUD_BELLY_BORDER = (20, 16, 24)
+HUD_HEAL_POS = (16, 64)
+HUD_HEAL_SIZE = (120, 8)
+HUD_HEAL_BG = (24, 26, 34)
+HUD_HEAL_FILL = (120, 220, 140)
+HUD_HEAL_BORDER = (200, 200, 210)
+
+# --- Small enemy (Milestone 8) ---
+# Enemy sprite: Skin4 body + Hair3 hair + the flower (composited like Xynthra).
+ENEMY_SKIN_SHEET = _os.path.join(GANDALF_DIR, "Character_skin_colors", "Female_Skin4.png")
+ENEMY_HAIR_SHEET = _os.path.join(GANDALF_DIR, "Female_Hair", "Female_Hair3.png")
+ENEMY_HAND_SHEET = PLAYER_HAND_SHEET   # same flower
+
+SMALL_HP = 3
+SMALL_W = 30                       # ~1x Xynthra hitbox
+SMALL_H = 72
+SMALL_CONTACT_DAMAGE = 1           # normal hit -> knockback + i-frames
+SMALL_PROJECTILE_DAMAGE = 1
+SMALL_PROJECTILE_SPEED = 300.0
+SMALL_PROJECTILE_SIZE = 10
+SMALL_PROJECTILE_COLOR = (255, 140, 60)
+SMALL_TURRET_INTERVAL = 2.0        # turret shoots horizontally every ~2 s
+SMALL_JUMPER_INTERVAL = 2.5        # jumper jumps every ~2.5 s, fires at the apex
+SMALL_JUMP_VELOCITY = -560.0
+
+# --- Big enemy (Milestone 9) ---
+# Big art: Skin2 body + Hair2 hair + the flower, composited like Xynthra but
+# drawn at a larger scale so it reads as the bigger (~1.85x) enemy.
+BIG_SKIN_SHEET = _os.path.join(GANDALF_DIR, "Character_skin_colors", "Female_Skin2.png")
+BIG_HAIR_SHEET = _os.path.join(GANDALF_DIR, "Female_Hair", "Female_Hair2.png")
+BIG_HAND_SHEET = PLAYER_HAND_SHEET     # same flower
+BIG_SPRITE_SCALE = 4                    # bigger than the player/Small scale (2)
+
+BIG_HP = 5
+BIG_W = 56                         # ~1.85x Xynthra's 30 px hitbox width
+BIG_H = 133                        # ~1.85x Xynthra's 72/80 px height
+BIG_CONTACT_DAMAGE = 0             # contact swallows instead of dealing a normal hit
+BIG_SPEED = 180.0                  # pursuit run speed (px/s)
+BIG_ACCEL = 1600.0                 # how quickly it reaches pursuit speed / stops
+BIG_DETECT_RADIUS = 400.0          # detects the player within this distance, then pursues
+BIG_JUMP_VELOCITY = -640.0         # jump impulse when blocked or the player is above
+BIG_JUMP_COOLDOWN = 0.8            # min seconds between pursuit jumps
+BIG_PLAYER_ABOVE_MARGIN = 8.0      # player must be this far above to trigger a reach jump
+
+# --- Swallowed overlay (Milestone 9 placeholder; struggle minigame is M10) ---
+SWALLOW_MSG = "Xynthra is trying to escape!"
+SWALLOW_MSG_SIZE = 46
+SWALLOW_MSG_COLOR = (240, 210, 150)
+SWALLOW_BANNER_COLOR = (12, 10, 16, 150)   # RGBA, semi-transparent banner
+SWALLOW_BANNER_H = 64                       # banner height in internal px

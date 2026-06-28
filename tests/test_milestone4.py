@@ -23,9 +23,10 @@ DT = S.FIXED_DT
 
 
 class FakeInput:
-    def __init__(self, held=(), pressed=()):
+    def __init__(self, held=(), pressed=(), released=()):
         self.held = set(held)
         self.pressed = set(pressed)
+        self.released = set(released)
 
     def is_held(self, a):
         return a in self.held
@@ -34,7 +35,7 @@ class FakeInput:
         return a in self.pressed
 
     def just_released(self, a):
-        return False
+        return a in self.released
 
 
 # floor at ty=9 (top=288); spawn high so she lands on it
@@ -197,15 +198,24 @@ def test_projectile_lifetime_despawn():
 
 
 # ----------------------------------------------------------------- shoot pose
-def test_shoot_plays_attack_pose():
+def test_attack_pose_on_press_not_held_during_charge():
     from assets import build_player_animations
     tm = _map(GROUND_MAP)
     p = Player(2 * S.TILE, 0, build_player_animations())
     _settle(p, tm, 120)
     assert p.on_ground
-    p.update(DT, tm, FakeInput(pressed={"shoot"}))
-    assert p.state == "attack"
-    assert p.shoot_timer > 0.0
+    # press: the attack pose plays immediately
+    p.update(DT, tm, FakeInput(held={"shoot"}, pressed={"shoot"}))
+    assert p.state == "attack" and p.shoot_timer > 0.0
+    # keep holding to charge past the pose time and past level 2:
+    # the attack pose must expire (not stay frozen) while charging
+    for _ in range(int(S.CHARGE_L2_TIME / DT) + 5):
+        p.update(DT, tm, FakeInput(held={"shoot"}))
+    assert p.charging and p.shoot_timer == 0.0 and p.state != "attack"
+    # release: the charged shot fires and the attack pose plays again
+    p.update(DT, tm, FakeInput(released={"shoot"}))
+    assert len(p.fired) == 1
+    assert p.shoot_timer > 0.0 and p.state == "attack"
 
 
 # ----------------------------------------------------------------- runner

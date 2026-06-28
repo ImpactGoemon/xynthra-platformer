@@ -38,15 +38,18 @@ Xynthra_Plat/
   assets.py          # sprite-sheet table: path, row->animation, frame counts, fps
   core/
     input.py         # key -> action mapping, action state
-    physics.py       # AABB collision, gravity, one-way platforms, knockback
+    physics.py       # AABB collision, gravity, one-way platforms, knockback; approach()
     camera.py        # follow + look-ahead + smoothing, clamped to level bounds
     animation.py     # frame/state animation driver; loads & slices sprite sheets
     state.py         # scene/state manager (Menu, Play, GameOver)
   entities/
-    player.py        # Xynthra: movement, shooting, health, belly, struggle
+    entity.py        # Entity root: aabb + alive + draw() contract
+    actor.py         # Actor(Entity): shared humanoid base — physics, facing,
+                     #   defeat sequence, feet-anchored sprite draw (Player/Enemy)
+    player.py        # Xynthra(Actor): movement, shooting, health, belly, struggle
     projectile.py
-    enemy.py         # base + Small / Big / Juggernaut
-    pickup.py        # healing object (shrunken lady)
+    enemy.py         # Enemy(Actor) base + Small / Big / Juggernaut
+    pickup.py        # Pickup(Entity): healing object (shrunken lady) — static, no physics
   world/
     tilemap.py       # level data, layers, collision flags, exit trigger
     level1.py        # the demo level layout

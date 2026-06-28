@@ -32,3 +32,41 @@ def draw_charge_meter(surface, player):
 
     # border on top
     pygame.draw.rect(surface, S.HUD_CHARGE_BORDER, (x, y, w, h), 1)
+
+
+def draw_health(surface, player):
+    """Draw the player's HP as a row of pips (filled = remaining). Milestone 6."""
+    x0, y0 = S.HUD_HEALTH_POS
+    pw, ph = S.HUD_HEALTH_PIP
+    gap = S.HUD_HEALTH_GAP
+    max_hp = S.PLAYER_MAX_HP
+    for i in range(max_hp):
+        x = x0 + i * (pw + gap)
+        color = S.HUD_HEALTH_FULL if i < player.hp else S.HUD_HEALTH_EMPTY
+        pygame.draw.rect(surface, color, (x, y0, pw, ph))
+        pygame.draw.rect(surface, S.HUD_HEALTH_BORDER, (x, y0, pw, ph), 1)
+
+
+def draw_belly(surface, player):
+    """Draw the belly indicator: BELLY_MAX slots, filled per stored pickup."""
+    x0, y0 = S.HUD_BELLY_POS
+    sw, sh = S.HUD_BELLY_SLOT
+    gap = S.HUD_BELLY_GAP
+    for i in range(S.BELLY_MAX):
+        x = x0 + i * (sw + gap)
+        color = S.HUD_BELLY_FULL if i < player.belly else S.HUD_BELLY_EMPTY
+        pygame.draw.rect(surface, color, (x, y0, sw, sh))
+        pygame.draw.rect(surface, S.HUD_BELLY_BORDER, (x, y0, sw, sh), 1)
+
+
+def draw_heal_progress(surface, player):
+    """Draw the digest progress bar while the player is healing (no-op otherwise)."""
+    if not getattr(player, "healing", False):
+        return
+    x, y = S.HUD_HEAL_POS
+    w, h = S.HUD_HEAL_SIZE
+    pygame.draw.rect(surface, S.HUD_HEAL_BG, (x, y, w, h))
+    fw = int(round(w * player.heal_fraction))
+    if fw > 0:
+        pygame.draw.rect(surface, S.HUD_HEAL_FILL, (x, y, fw, h))
+    pygame.draw.rect(surface, S.HUD_HEAL_BORDER, (x, y, w, h), 1)

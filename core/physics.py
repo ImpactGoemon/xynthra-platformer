@@ -105,3 +105,10 @@ def move_and_collide(aabb, vx, vy, dt, tilemap, drop_through_top=None):
                 aabb.top = max(t.bottom for t in solids); vy = 0.0; flags["ceiling"] = True
 
     return flags, vx, vy
+
+
+def approach(value, target, max_delta):
+    """Move ``value`` toward ``target`` by at most ``max_delta`` (accel/friction)."""
+    if value < target:
+        return min(value + max_delta, target)
+    return max(value - max_delta, target)
